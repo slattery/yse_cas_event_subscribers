@@ -1,0 +1,10 @@
+yse_cas_event_subscribers.settings:
+  type: config_object
+  label: 'YSE CAS Event Subscribers'
+  mapping:
+    gateway_url:
+      type: text
+      label: 'Gateway URL for lookups'
+    secrets_path:
+      type: text
+      label: 'Filesystem location of secrets file'

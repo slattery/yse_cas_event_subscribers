@@ -1,0 +1,10 @@
+name: YSE CAS Event Subscribers
+description: 'fills the CasPropertyBag before the CAS Attributes modules events fire'
+type: module
+core: 8.x
+core_version_requirement: ^8 || ^9
+configure: cas_attributes.settings
+dependencies:
+  - cas:cas
+  - cas_attributes:cas_attributes
+

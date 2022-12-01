@@ -1,0 +1,6 @@
+services:
+  yse_cas_event_subscribers.subscriber:
+    class: Drupal\yse_cas_event_subscribers\Subscriber\DirectoryAttributesSubscriber
+    arguments: ['@config.factory']
+    tags:
+      - { name: 'event_subscriber' }
