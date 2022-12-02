@@ -1,0 +1,7 @@
+yse_cas_event_subscribers.settings:
+  path: '/admin/config/yse-cas-event-subscriptions/settings'
+  defaults:
+    _form: '\Drupal\yse_cas_event_subscribers\Form\YseCasEventSubscribersForm'
+    _title: 'Settings'
+  requirements:
+    _permission: 'administer site configuration'
