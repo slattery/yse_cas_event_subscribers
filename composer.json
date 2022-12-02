@@ -1,0 +1,6 @@
+{
+  "name": "slattery/yse_cas_event_subscribers",
+  "description": "YSE CAS attribute replacements",
+  "type": "drupal-custom-module",
+  "license": "GPL-2.0-or-later"
+}

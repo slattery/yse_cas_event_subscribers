@@ -41,7 +41,7 @@ class YseCasEventSubscribersForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'yse_cas_event_subscribers_form';
+    return 'yse_cas_event_subscribers';
   }
 
   /**
