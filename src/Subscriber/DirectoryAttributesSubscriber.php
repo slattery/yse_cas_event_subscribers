@@ -49,8 +49,8 @@ class DirectoryAttributesSubscriber implements EventSubscriberInterface {
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
-    $events[CasHelper::EVENT_PRE_REGISTER][] = ['onPreRegister', -2];
-    $events[CasHelper::EVENT_PRE_LOGIN][] = ['onPreLogin', 19];
+    $events[CasHelper::EVENT_PRE_REGISTER][] = ['onPreRegister', 1];
+    $events[CasHelper::EVENT_PRE_LOGIN][] = ['onPreLogin', 21];
     return $events;
   }
 
@@ -61,7 +61,6 @@ class DirectoryAttributesSubscriber implements EventSubscriberInterface {
    *   The CasPreAuthEvent containing property information.
    */
   public function onPreRegister(CasPreRegisterEvent $event) {
-    \Drupal::logger('yse_cas_eventsub')->notice('YSE onPreRegister Triggered');
     $cas_bag_handler        = \Drupal::service('yse.cas_baggagehandler');
 
     if ($this->casattsettings->get('field.sync_frequency') !== CasAttributesSettings::SYNC_FREQUENCY_NEVER) {
@@ -69,11 +68,14 @@ class DirectoryAttributesSubscriber implements EventSubscriberInterface {
       // next Subscriber will deal with fields and roles
       $email_hostname = $this->cassvcsettings->get('user_accounts.email_hostname');
       $cas_username   = $event->getCasPropertyBag()->getOriginalUsername();
-      //$event->getCasPropertyBag()->setAttribute('mail', $cas_username . '@' . $email_hostname);
-      $data = $cas_bag_handler->retrieveDirectoryRecord($cas_username);
-      $atts = $cas_bag_handler->gatherAttributes($data);
-      $atts = array_merge($event->getCasPropertyBag()->getAttributes(), $atts);
+      $event->getCasPropertyBag()->setAttribute('uid', $cas_username);
+      $record = $cas_bag_handler->getDirectoryData($cas_username);
+      $atts = array_merge($event->getCasPropertyBag()->getAttributes(), $record);
       $event->getCasPropertyBag()->setAttributes($atts);
+      $cas_friendly_name = $event->getCasPropertyBag()->getAttribute('name');
+      if ($cas_friendly_name){
+        $event->setDrupalUsername($cas_friendly_name);
+      }
     }
   }
 

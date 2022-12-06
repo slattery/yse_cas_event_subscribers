@@ -1,7 +1,7 @@
 services:
   yse.cas_baggagehandler:
     class: Drupal\yse_cas_event_subscribers\Service\CasBaggagehandler
-    arguments: ['@config.factory']
+    arguments: ['@config.factory','@event_dispatcher','@cas.helper']
   yse_cas_event_subscribers.subscriber:
     class: Drupal\yse_cas_event_subscribers\Subscriber\DirectoryAttributesSubscriber
     arguments: ['@config.factory']

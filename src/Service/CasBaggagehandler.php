@@ -3,6 +3,7 @@
 namespace Drupal\yse_cas_event_subscribers\Service;
 
 use Drupal\cas\CasPropertyBag;
+use Drupal\cas\Event\CasPreRegisterEvent;
 use Drupal\cas_attributes\Form\CasAttributesSettings;
 use Drupal\Component\Serialization\Json;
 use Drupal\cas\Service\CasHelper;
@@ -61,16 +62,21 @@ class CasBaggagehandler {
   public function fillCasPropertyBag($property_bag) {
     // Perform lookup and setAttributes in bag
     // next Subscriber will deal with fields and roles
-    $data = $this->retrieveDirectoryRecord($property_bag->getOriginalUsername());
-    $atts = $this->gatherAttributes($data);
+    $atts = $this->getDirectoryData($property_bag->getOriginalUsername());
     $property_bag->setAttributes(array_merge($property_bag->getAttributes(), $atts));
     // now you have the atts, you need to map using event and bag and dispatch
     return $property_bag;
   }
 
+  public function getDirectoryData($key){
+    $data = $this->retrieveDirectoryRecord($key);
+    $atts = $this->gatherAttributes($data);
+    return $atts;
+  }
+
   public function dispatchCasPreregisterEvent($property_bag){
     $cas_pre_register_event = new CasPreRegisterEvent($property_bag);
-    $this->casHelper->log(LogLevel::DEBUG, 'Dispatching EVENT_PRE_REGISTER.');
+    \Drupal::logger('yse_cas_eventsub')->notice('Dispatching EVENT_PRE_REGISTER.');
     $this->eventDispatcher->dispatch($cas_pre_register_event, CasHelper::EVENT_PRE_REGISTER);
     return $cas_pre_register_event;
   }

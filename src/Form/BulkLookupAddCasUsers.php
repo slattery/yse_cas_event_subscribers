@@ -60,7 +60,6 @@ class BulkLookupAddCasUsers extends FormBase {
  * {@inheritdoc}
  */
 public function parseLines(array &$form, FormStateInterface $form_state) {
-    \Drupal::logger('yse_cas_eventsub')->notice('Parsing CAS form');
     $roles = array_filter($form_state->getValue('roles'));
     unset($roles[RoleInterface::AUTHENTICATED_ID]);
     $roles = array_keys($roles);
@@ -122,12 +121,12 @@ public function parseLines(array &$form, FormStateInterface $form_state) {
     $cas_init_address = $cas_username . '@' . $email_hostname;
     $cas_property_bag->setAttributes(['roles' => $roles, 'mail' => $cas_init_address ]);
     $cas_pre_register_event = $cas_bag_handler->dispatchCasPreregisterEvent($cas_property_bag);
-      
+ 
     //let CAS Attributes module do the mapping/populating
    
     try {
       /** @var \Drupal\user\UserInterface $user */
-      $user = $cas_user_manager->register($cas_property_bag->getUsername(), $cas_pre_register_event->getDrupalUsername(), $cas_pre_register_event->getPropertyValues());
+      $user = $cas_user_manager->register($cas_property_bag->getOriginalUsername(), $cas_pre_register_event->getDrupalUsername(), $cas_pre_register_event->getPropertyValues());
       $context['results']['messages']['created'][] = $user->toLink()->toString();
     }
     catch (CasLoginException $e) {
