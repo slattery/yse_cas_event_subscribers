@@ -1,6 +1,6 @@
 services:
   yse.cas_baggagehandler:
-    class: Drupal\yse_cas_event_subscribers\Service\CasBaggageHandler
+    class: Drupal\yse_cas_event_subscribers\Service\CasBaggagehandler
     arguments: ['@config.factory']
   yse_cas_event_subscribers.subscriber:
     class: Drupal\yse_cas_event_subscribers\Subscriber\DirectoryAttributesSubscriber

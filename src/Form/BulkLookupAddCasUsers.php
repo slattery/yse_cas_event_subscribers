@@ -6,13 +6,14 @@ namespace Drupal\yse_cas_event_subscribers\Form;
 use Drupal\cas\CasPropertyBag;
 use Drupal\cas\Event\CasPreRegisterEvent;
 use Drupal\cas\Exception\CasLoginException;
+use Drupal\cas\Form\BulkAddCasUsers;
 use Drupal\cas\Service\CasHelper;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Markup;
 use Drupal\user\RoleInterface;
 use Drupal\user\UserInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 //use Drupal\yse_cas_event_subscribers\Service\CasBaggagehandler;
 
 /**
@@ -22,6 +23,21 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class BulkLookupAddCasUsers extends FormBase {
 
+
+  /**
+   * The CAS Helper.
+   *
+   * @var \Drupal\cas\Service\CasHelper
+   */
+  protected $casHelper;
+
+  /**
+   * Used to dispatch CAS login events.
+   *
+   * @var \Symfony\Component\EventDispatcher\EventDispatcher
+   */
+  protected $eventDispatcher;
+
   /**
    * {@inheritdoc}
    */
@@ -29,10 +45,22 @@ class BulkLookupAddCasUsers extends FormBase {
     return 'bulk_lookup_add_cas_users';
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {}
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {}
+
+
 /**
  * {@inheritdoc}
  */
 public function parseLines(array &$form, FormStateInterface $form_state) {
+    \Drupal::logger('yse_cas_eventsub')->notice('Parsing CAS form');
     $roles = array_filter($form_state->getValue('roles'));
     unset($roles[RoleInterface::AUTHENTICATED_ID]);
     $roles = array_keys($roles);
@@ -54,10 +82,10 @@ public function parseLines(array &$form, FormStateInterface $form_state) {
     }
 
     $batch = [
-      'title' => $this->t('Creating CAS users...'),
+      'title' => t('Creating YSE CAS users...'),
       'operations' => $operations,
       'finished' => '\Drupal\yse_cas_event_subscribers\Form\BulkLookupAddCasUsers::userLookupAddFinished',
-      'progress_message' => $this->t('Processed @current out of @total.'),
+      'progress_message' => t('Processed @current out of @total.'),
     ];
 
     batch_set($batch);
@@ -78,6 +106,7 @@ public function parseLines(array &$form, FormStateInterface $form_state) {
    *   The batch context array, passed by reference.
    */
   public static function userLookupAdd($cas_username, array $roles, $email_hostname, array &$context) {
+    $evt_dispatcher   = new EventDispatcher();
     $cas_user_manager = \Drupal::service('cas.user_manager');
     $cas_bag_handler  = \Drupal::service('yse.cas_baggagehandler');
 
@@ -88,19 +117,17 @@ public function parseLines(array &$form, FormStateInterface $form_state) {
       return;
     }
     
+    //Create event with baggage for various transforms
     $cas_property_bag = new CasPropertyBag($cas_username);
-    $cas_property_bag->setAttribute('roles', $roles);
-    $cas_property_bag->setAttribute('mail', $cas_username . '@' . $email_hostname);
-    $yse_property_bag = $cas_bag_handler->fillCasPropertyBag($cas_property_bag);
-    $cas_pre_register_event = new CasPreRegisterEvent($yse_property_bag);
-
+    $cas_init_address = $cas_username . '@' . $email_hostname;
+    $cas_property_bag->setAttributes(['roles' => $roles, 'mail' => $cas_init_address ]);
+    $cas_pre_register_event = $cas_bag_handler->dispatchCasPreregisterEvent($cas_property_bag);
+      
     //let CAS Attributes module do the mapping/populating
-    CasHelper::log(LogLevel::DEBUG, 'Dispatching EVENT_PRE_REGISTER.');
-    EventDispatcherInterface::dispatch($cas_pre_register_event, CasHelper::EVENT_PRE_REGISTER);
-  
+   
     try {
       /** @var \Drupal\user\UserInterface $user */
-      $user = $cas_user_manager->register($yse_property_bag->getUsername(), $cas_pre_register_event->getDrupalUsername(), $cas_pre_register_event->getPropertyValues());
+      $user = $cas_user_manager->register($cas_property_bag->getUsername(), $cas_pre_register_event->getDrupalUsername(), $cas_pre_register_event->getPropertyValues());
       $context['results']['messages']['created'][] = $user->toLink()->toString();
     }
     catch (CasLoginException $e) {

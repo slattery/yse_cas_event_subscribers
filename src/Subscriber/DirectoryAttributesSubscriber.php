@@ -61,15 +61,15 @@ class DirectoryAttributesSubscriber implements EventSubscriberInterface {
    *   The CasPreAuthEvent containing property information.
    */
   public function onPreRegister(CasPreRegisterEvent $event) {
+    \Drupal::logger('yse_cas_eventsub')->notice('YSE onPreRegister Triggered');
     $cas_bag_handler        = \Drupal::service('yse.cas_baggagehandler');
 
     if ($this->casattsettings->get('field.sync_frequency') !== CasAttributesSettings::SYNC_FREQUENCY_NEVER) {
       // Perform lookup and setAttributes in bag
       // next Subscriber will deal with fields and roles
-
       $email_hostname = $this->cassvcsettings->get('user_accounts.email_hostname');
       $cas_username   = $event->getCasPropertyBag()->getOriginalUsername();
-      $event->getCasPropertyBag()->setAttribute('mail', $cas_username . '@' . $email_hostname);
+      //$event->getCasPropertyBag()->setAttribute('mail', $cas_username . '@' . $email_hostname);
       $data = $cas_bag_handler->retrieveDirectoryRecord($cas_username);
       $atts = $cas_bag_handler->gatherAttributes($data);
       $atts = array_merge($event->getCasPropertyBag()->getAttributes(), $atts);

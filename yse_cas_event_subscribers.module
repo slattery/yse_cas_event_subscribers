@@ -4,7 +4,7 @@
  * @file
  * Examples demonstrating how to implement and invoke hooks.
  */
-
+use Drupal\Core\Form\FormStateInterface
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\yse_cas_event_subscribers\Form\BulkLookupAddCasUsers;
 
@@ -12,7 +12,7 @@ use Drupal\yse_cas_event_subscribers\Form\BulkLookupAddCasUsers;
  * Implements hook_form_FORM_ID_alter().
  */
 function yse_cas_event_subscribers_form_bulk_add_cas_users_alter(&$form, FormStateInterface $form_state, $form_id) {
-  $form['submit']['#submit'][] = '\Drupal\yse_cas_event_subscribers\Form\BulkLookupAddCasUsers::parseLines';
+  $form['actions']['submit']['#submit'][] = '\Drupal\yse_cas_event_subscribers\Form\BulkLookupAddCasUsers::parseLines';
 }
 
 /**
