@@ -2,8 +2,13 @@ services:
   yse.cas_baggagehandler:
     class: Drupal\yse_cas_event_subscribers\Service\CasBaggagehandler
     arguments: ['@config.factory','@event_dispatcher','@cas.helper']
-  yse_cas_event_subscribers.subscriber:
+  yse_cas_event_subscribers.caspreregister:
     class: Drupal\yse_cas_event_subscribers\Subscriber\DirectoryAttributesSubscriber
+    arguments: ['@config.factory']
+    tags:
+      - { name: 'event_subscriber' }
+  yse_cas_event_subscribers.xaregister:
+    class: Drupal\yse_cas_event_subscribers\Subscriber\ExternalauthRegisterSubscriber
     arguments: ['@config.factory']
     tags:
       - { name: 'event_subscriber' }
