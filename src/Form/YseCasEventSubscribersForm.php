@@ -59,6 +59,7 @@ class YseCasEventSubscribersForm extends ConfigFormBase {
     
     $gateway = $this->configFactory->get('yse_cas_event_subscribers.settings')->get('gateway_url');
     $secrets = $this->configFactory->get('yse_cas_event_subscribers.settings')->get('secrets_path');
+    $profile = $this->configFactory->get('yse_cas_event_subscribers.settings')->get('make_profile');
 
     $form['gateway_url'] = [
       '#type' => 'textfield',
@@ -76,6 +77,13 @@ class YseCasEventSubscribersForm extends ConfigFormBase {
       '#min' => 1,
       '#required' => TRUE,
       '#description' => $this->t('The filesystem location of secrets file. The SERVER HOME env setting is prepended to this path.'),
+    ];
+
+    $form['make_profile'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Create profiles for new CAS users?'),
+      '#description' => $this->t('When checked, an attempt will be made for successful registrations to make a profile from the YSE profile content type.'),
+      '#default_value' => $profile,
     ];
 
     return parent::buildForm($form, $form_state);
