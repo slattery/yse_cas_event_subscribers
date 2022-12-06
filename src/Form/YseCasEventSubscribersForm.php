@@ -104,7 +104,7 @@ class YseCasEventSubscribersForm extends ConfigFormBase {
     $config = $this->configFactory->getEditable('yse_cas_event_subscribers.settings');
     $config->set('gateway_url', $form_state->getValue('gateway_url'))->save();
     $config->set('secrets_path', $form_state->getValue('secrets_path'))->save();
-
+    $config->set('make_profile', $form_state->getValue('make_profile'))->save();
     //\Drupal::logger('yse_cas_event_subscribers')->notice('Are we being called @yeah?', ['@yeah' => $yeah]);
     parent::submitForm($form, $form_state);
   }
