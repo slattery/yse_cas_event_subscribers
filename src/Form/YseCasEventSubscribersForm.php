@@ -54,6 +54,7 @@ class YseCasEventSubscribersForm extends ConfigFormBase {
 
  /**
    * {@inheritdoc}
+   *  Should show a note here and link about role mapping over at CAS Attributes for bulk form.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     
